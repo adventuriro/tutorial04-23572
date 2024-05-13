@@ -15,26 +15,26 @@ public class AnimalsDataStore
             new Animal
             {
                 Id = 1,
-                Name = "Fifek",
+                Name = "jiki",
                 Category = "Dog",
-                Color = "White",
-                Weight = 12,
+                Color = "black",
+                Weight = 14,
             },
             new Animal
             {
                 Id = 2,
-                Name = "Miauczek",
+                Name = "mimo",
                 Category = "Cat",
-                Color = "Orange",
-                Weight = 7,
+                Color = "white",
+                Weight = 9,
             },
             new Animal
             {
                 Id = 3,
-                Name = "Owca",
+                Name = "lick",
                 Category = "Sheep",
-                Color = "Black",
-                Weight = 9,
+                Color = "bleu",
+                Weight = 8,
             },
         };
     }
