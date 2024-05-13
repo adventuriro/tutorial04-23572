@@ -1,4 +1,4 @@
-﻿namespace tutorial05.DTOs;
+﻿namespace tutorial04.DTOs;
 
 public class AppointmentPostDto
 {

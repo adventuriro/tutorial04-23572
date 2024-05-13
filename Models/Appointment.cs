@@ -1,4 +1,4 @@
-﻿namespace tutorial05.Models;
+﻿namespace tutorial04.Models;
 
 public class Appointment
 {

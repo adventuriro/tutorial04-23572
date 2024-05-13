@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using tutorial05.DataStores;
-using tutorial05.DTOs;
-using tutorial05.Models;
+using tutorial04.DataStores;
+using tutorial04.DTOs;
+using tutorial04.Models;
 
-namespace tutorial05.Controllers;
+namespace tutorial04.Controllers;
 
 [Route("api/appointments")]
 [ApiController]
