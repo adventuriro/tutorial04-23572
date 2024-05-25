@@ -1,48 +1,114 @@
-// This call WebApplication.CreateBuilder() creates an object that represents our application 
-// This variable allows our application to be configured before it will be executed
-// Builder pattern - design patter (classic design patterns of objective programming
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using System;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-// We define the element in IoC container
 // Add services to the container.
 builder.Services.AddControllers();
-// This element is searching for our application and all the endpoints that we have defined
-// GET /api/students - resource + what we want to do with this resource => endpoint
 builder.Services.AddEndpointsApiExplorer();
-// This element allows me to add automatically generated documentation for my application
 builder.Services.AddSwaggerGen();
 
-// This .Build(); method returns an application that is being configured according to what we have previously defined
 var app = builder.Build();
 
-
-//2. Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    // This element is basically a sample documentation that is automatically generated only available in our application
-    // if it is running in development mode
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
 
-// Minimal API
+var animals = new List<Animal>();
+var visits = new List<Visit>();
 
-//var students = new List<Student>();
-//{
-//new Student { Id = 1, FirstName = "John", LastName = "Doe" };
-//new Student { Id = 2, FirstName = "Jane", LastName = "Test" };
-//};
+app.MapGet("/api/animals", () =>
+{
+    return Results.Ok(animals);
+});
 
-//app.MapGet("/api/students", () =>
-//{
-//      Some logic
-//      return Results.Ok(students); // 200 HTTP response - OK
-//});
+app.MapGet("/api/animals/{id}", (int id) =>
+{
+    var animal = animals.Find(a => a.Id == id);
+    if (animal == null)
+    {
+        return Results.NotFound();
+    }
+    return Results.Ok(animal);
+});
 
-app.MapControllers();
+app.MapPost("/api/animals", (Animal animal) =>
+{
+    animal.Id = animals.Count + 1;
+    animals.Add(animal);
+    return Results.Created($"/api/animals/{animal.Id}", animal);
+});
+
+app.MapPut("/api/animals/{id}", (int id, Animal updatedAnimal) =>
+{
+    var animal = animals.Find(a => a.Id == id);
+    if (animal == null)
+    {
+        return Results.NotFound();
+    }
+    animal.Name = updatedAnimal.Name;
+    animal.Category = updatedAnimal.Category;
+    animal.Weight = updatedAnimal.Weight;
+    animal.FurColor = updatedAnimal.FurColor;
+    return Results.Ok(animal);
+});
+
+app.MapDelete("/api/animals/{id}", (int id) =>
+{
+    var animal = animals.Find(a => a.Id == id);
+    if (animal == null)
+    {
+        return Results.NotFound();
+    }
+    animals.Remove(animal);
+    return Results.NoContent();
+});
+
+app.MapGet("/api/animals/{id}/visits", (int id) =>
+{
+    var animalVisits = visits.FindAll(v => v.AnimalId == id);
+    return Results.Ok(animalVisits);
+});
+
+app.MapPost("/api/animals/{id}/visits", (int id, Visit visit) =>
+{
+    var animal = animals.Find(a => a.Id == id);
+    if (animal == null)
+    {
+        return Results.NotFound();
+    }
+    visit.Id = visits.Count + 1;
+    visit.AnimalId = id;
+    visits.Add(visit);
+    return Results.Created($"/api/animals/{id}/visits/{visit.Id}", visit);
+});
 
 app.Run();
+
+public class Animal
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Category { get; set; }
+    public double Weight { get; set; }
+    public string FurColor { get; set; }
+    public string Color { get; set; }
+}
+
+public class Visit
+{
+    public int Id { get; set; }
+    public int AnimalId { get; set; }
+    public DateTime DateOfVisit { get; set; }
+    public string Description { get; set; }
+    public decimal Price { get; set; }
+}
