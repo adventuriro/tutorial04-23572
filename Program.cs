@@ -1,114 +1,33 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Http;
-
+// This call to WebApplication.CreateBuilder() creates an object that represents our application.
+// This variable allows our application to be configured before it will be executed.
+// This follows the Builder pattern, a classic design pattern in object-oriented programming.
 var builder = WebApplication.CreateBuilder(args);
 
+// We define the elements in the IoC (Inversion of Control) container.
 // Add services to the container.
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddControllers(); // Registers controllers for handling HTTP requests.
+builder.Services.AddEndpointsApiExplorer(); // Adds support for API exploration.
+builder.Services.AddSwaggerGen(); // Adds support for Swagger/OpenAPI documentation generation.
 
+// This .Build() method returns an application that is being configured according to what we have previously defined.
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// 2. Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    // This element sets up Swagger for API documentation generation.
     app.UseSwagger();
+    // This element sets up Swagger UI for visually exploring and interacting with the API documentation.
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseHttpsRedirection(); // Redirects HTTP requests to HTTPS for secure communication.
 
-var animals = new List<Animal>();
-var visits = new List<Visit>();
+// Minimal API
+// Define API endpoints using a more concise syntax known as Minimal API.
+// Here, app.MapControllers() sets up routing based on controller actions and attributes.
+app.MapControllers();
 
-app.MapGet("/api/animals", () =>
-{
-    return Results.Ok(animals);
-});
-
-app.MapGet("/api/animals/{id}", (int id) =>
-{
-    var animal = animals.Find(a => a.Id == id);
-    if (animal == null)
-    {
-        return Results.NotFound();
-    }
-    return Results.Ok(animal);
-});
-
-app.MapPost("/api/animals", (Animal animal) =>
-{
-    animal.Id = animals.Count + 1;
-    animals.Add(animal);
-    return Results.Created($"/api/animals/{animal.Id}", animal);
-});
-
-app.MapPut("/api/animals/{id}", (int id, Animal updatedAnimal) =>
-{
-    var animal = animals.Find(a => a.Id == id);
-    if (animal == null)
-    {
-        return Results.NotFound();
-    }
-    animal.Name = updatedAnimal.Name;
-    animal.Category = updatedAnimal.Category;
-    animal.Weight = updatedAnimal.Weight;
-    animal.FurColor = updatedAnimal.FurColor;
-    return Results.Ok(animal);
-});
-
-app.MapDelete("/api/animals/{id}", (int id) =>
-{
-    var animal = animals.Find(a => a.Id == id);
-    if (animal == null)
-    {
-        return Results.NotFound();
-    }
-    animals.Remove(animal);
-    return Results.NoContent();
-});
-
-app.MapGet("/api/animals/{id}/visits", (int id) =>
-{
-    var animalVisits = visits.FindAll(v => v.AnimalId == id);
-    return Results.Ok(animalVisits);
-});
-
-app.MapPost("/api/animals/{id}/visits", (int id, Visit visit) =>
-{
-    var animal = animals.Find(a => a.Id == id);
-    if (animal == null)
-    {
-        return Results.NotFound();
-    }
-    visit.Id = visits.Count + 1;
-    visit.AnimalId = id;
-    visits.Add(visit);
-    return Results.Created($"/api/animals/{id}/visits/{visit.Id}", visit);
-});
-
+// The app.Run() method is used to configure the application's request processing pipeline.
+// In this context, it indicates the end of configuring the pipeline.
 app.Run();
-
-public class Animal
-{
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string Category { get; set; }
-    public double Weight { get; set; }
-    public string FurColor { get; set; }
-    public string Color { get; set; }
-}
-
-public class Visit
-{
-    public int Id { get; set; }
-    public int AnimalId { get; set; }
-    public DateTime DateOfVisit { get; set; }
-    public string Description { get; set; }
-    public decimal Price { get; set; }
-}
